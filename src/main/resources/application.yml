@@ -1,1 +1,16 @@
-spring.application.name=REST-with-spring-boot-and-java
+spring:
+  application:
+    name: REST-with-spring-boot-and-java
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE}?useTimezone=true&serverTimezone=UTC
+    username: ${MY_SQL_USERNAME}
+    password: ${MY_SQL_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+
