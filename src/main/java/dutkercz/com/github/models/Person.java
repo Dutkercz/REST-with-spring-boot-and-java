@@ -2,12 +2,15 @@ package dutkercz.com.github.models;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import static jakarta.persistence.EnumType.STRING;
 
 @Entity
-public class Person {
+public class Person implements Serializable {
+
+    private final static long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
