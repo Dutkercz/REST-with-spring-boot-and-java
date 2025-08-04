@@ -1,6 +1,9 @@
 package dutkercz.com.github.data.dto;
 
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dutkercz.com.github.models.PersonGenderEnum;
+import dutkercz.com.github.serializer.EnumGenderSerializer;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -8,35 +11,43 @@ import java.util.Objects;
 
 import static jakarta.persistence.EnumType.STRING;
 
+//altera a ordem de visualização do JSON nas respostas (GET)
+@JsonPropertyOrder({"id", "first_name", "last_name", "address", "personGenderEnum"})
+@JsonFilter("PersonFilter")//adiciona o filtro personalizado do ObjectMapperConfig
 public class PersonDTO implements Serializable {
 
     private final static long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
 
-    @Column(nullable = false, length = 80)
+    @JsonProperty("first_name")//altera o nome na visualização do JSON (GET)
     private String firstName;
 
-    @Column(nullable = false, length = 80)
+    @JsonProperty("last_name")
+    @JsonInclude(JsonInclude.Include.NON_NULL) // apenas renderiza quando não estiver NULO
     private String lastName;
 
-    @Column(nullable = false)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY) //apenas renderiza quando não estiver VAZIO (EXMPLO "")
     private String address;
 
-    @Enumerated(STRING)@Column(nullable = false, length = 10)
-    private PersonGenderEnum personGenderEnum;
+    @Enumerated(STRING)
+    // @JsonIgnore  Suprime a visualização do campo na resposta do JSON
+    @JsonSerialize(using = EnumGenderSerializer.class)
+    private PersonGenderEnum gender;
+
+
+    private String sensitiveData;
 
     public PersonDTO() {
     }
 
-    public PersonDTO(Long id, String firstName, String lastName, String address, PersonGenderEnum personGenderEnum) {
+    public PersonDTO(Long id, String firstName, String lastName, String address, PersonGenderEnum gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
-        this.personGenderEnum = personGenderEnum;
+        this.gender = gender;
     }
 
     public Long getId() {
@@ -71,44 +82,31 @@ public class PersonDTO implements Serializable {
         this.address = address;
     }
 
-    public PersonGenderEnum getPersonGenderEnum() {
-        return personGenderEnum;
+    public PersonGenderEnum getGender() {
+        return gender;
     }
 
-    public void setPersonGenderEnum(PersonGenderEnum personGenderEnum) {
-        this.personGenderEnum = personGenderEnum;
+    public void setGender(PersonGenderEnum gender) {
+        this.gender = gender;
+    }
+
+    public String getSensitiveData() {
+        return sensitiveData;
+    }
+
+    public void setSensitiveData(String sensitiveData) {
+        this.sensitiveData = sensitiveData;
     }
 
     @Override
-    public final boolean equals(Object o) {
-        if (!(o instanceof PersonDTO personDTO)) return false;
-
-        return Objects.equals(id, personDTO.id) && Objects.equals(firstName, personDTO.firstName) && Objects.equals(lastName, personDTO.lastName) && Objects.equals(address, personDTO.address);
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonDTO personDTO = (PersonDTO) o;
+        return Objects.equals(id, personDTO.id) && Objects.equals(firstName, personDTO.firstName) && Objects.equals(lastName, personDTO.lastName) && Objects.equals(address, personDTO.address) && gender == personDTO.gender && Objects.equals(sensitiveData, personDTO.sensitiveData);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(id);
-        result = 31 * result + Objects.hashCode(firstName);
-        result = 31 * result + Objects.hashCode(lastName);
-        result = 31 * result + Objects.hashCode(address);
-        return result;
-    }
-
-    public void update(PersonDTO personDTO) {
-        this.id = personDTO.getId();
-        if (personDTO.getFirstName() != null && !personDTO.getFirstName().isBlank()){
-            this.firstName = personDTO.getFirstName();
-        }
-        if (personDTO.getLastName() != null && !personDTO.getLastName().isBlank()){
-            this.lastName = personDTO.getLastName();
-        }
-        if (personDTO.getAddress() != null && !personDTO.getAddress().isBlank()){
-            this.address = personDTO.getAddress();
-        }
-        if (personDTO.getPersonGenderEnum() != null){
-            this.personGenderEnum = personDTO.getPersonGenderEnum();
-        }
-
+        return Objects.hash(id, firstName, lastName, address, gender, sensitiveData);
     }
 }

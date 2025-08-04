@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ObjectMapper {
+public class EntityMapper {
 
     private static Mapper mapper = DozerBeanMapperBuilder.buildDefault();
 

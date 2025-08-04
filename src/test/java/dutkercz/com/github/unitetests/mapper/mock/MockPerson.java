@@ -51,7 +51,7 @@ public class MockPerson {
         PersonDTO person = new PersonDTO();
         person.setAddress("Address Test" + number);
         person.setFirstName("First Name Test" + number);
-        person.setPersonGenderEnum(((number % 2)==0) ? MALE : FEMALE);
+        person.setGender(((number % 2)==0) ? MALE : FEMALE);
         person.setId(number.longValue());
         person.setLastName("Last Name Test" + number);
         return person;
