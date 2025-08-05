@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dutkercz.com.github.models.PersonGenderEnum;
 import dutkercz.com.github.serializer.EnumGenderSerializer;
 import jakarta.persistence.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import static jakarta.persistence.EnumType.STRING;
 //altera a ordem de visualização do JSON nas respostas (GET)
 //@JsonPropertyOrder({"id", "first_name", "last_name", "address", "personGenderEnum"})
 //@JsonFilter("PersonFilter")//adiciona o filtro personalizado do ObjectMapperConfig
-public class PersonDTO implements Serializable {
+public class PersonDTO extends RepresentationModel<PersonDTO> implements Serializable {
 
     private final static long serialVersionUID = 1L;
 

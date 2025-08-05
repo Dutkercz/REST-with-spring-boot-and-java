@@ -1,5 +1,6 @@
 package dutkercz.com.github.services;
 
+import dutkercz.com.github.controllers.PersonController;
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static dutkercz.com.github.mapper.EntityMapper.parseObject;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class PersonService {
@@ -45,7 +48,10 @@ public class PersonService {
     }
 
     public PersonDTO findById(Long id) {
-        return parseObject(personRepository.findById(id)
+        var dto =  parseObject(personRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado")), PersonDTO.class);
+        dto.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel().withType("GET"));
+
+        return dto;
     }
 }
