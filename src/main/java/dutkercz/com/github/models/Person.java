@@ -96,7 +96,7 @@ public class Person implements Serializable {
         return result;
     }
 
-    public void update(PersonDTO person) {
+    public Person update(PersonDTO person) {
         this.id = person.getId();
         if (person.getFirstName() != null && !person.getFirstName().isBlank()){
             this.firstName = person.getFirstName();
@@ -110,6 +110,6 @@ public class Person implements Serializable {
         if (person.getGender() != null){
             this.gender = person.getGender();
         }
-
+        return this;
     }
 }
