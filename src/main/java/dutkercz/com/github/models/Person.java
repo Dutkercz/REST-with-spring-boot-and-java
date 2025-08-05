@@ -1,5 +1,6 @@
 package dutkercz.com.github.models;
 
+import dutkercz.com.github.data.dto.PersonDTO;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -26,17 +27,17 @@ public class Person implements Serializable {
     private String address;
 
     @Enumerated(STRING)@Column(nullable = false, length = 10)
-    private PersonGenderEnum personGenderEnum;
+    private PersonGenderEnum gender;
 
     public Person() {
     }
 
-    public Person(Long id, String firstName, String lastName, String address, PersonGenderEnum personGenderEnum) {
+    public Person(Long id, String firstName, String lastName, String address, PersonGenderEnum gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
-        this.personGenderEnum = personGenderEnum;
+        this.gender = gender;
     }
 
     public Long getId() {
@@ -71,12 +72,12 @@ public class Person implements Serializable {
         this.address = address;
     }
 
-    public PersonGenderEnum getPersonGenderEnum() {
-        return personGenderEnum;
+    public PersonGenderEnum getGender() {
+        return gender;
     }
 
-    public void setPersonGenderEnum(PersonGenderEnum personGenderEnum) {
-        this.personGenderEnum = personGenderEnum;
+    public void setGender(PersonGenderEnum gender) {
+        this.gender = gender;
     }
 
     @Override
@@ -95,7 +96,7 @@ public class Person implements Serializable {
         return result;
     }
 
-    public void update(Person person) {
+    public void update(PersonDTO person) {
         this.id = person.getId();
         if (person.getFirstName() != null && !person.getFirstName().isBlank()){
             this.firstName = person.getFirstName();
@@ -106,8 +107,8 @@ public class Person implements Serializable {
         if (person.getAddress() != null && !person.getAddress().isBlank()){
             this.address = person.getAddress();
         }
-        if (person.getPersonGenderEnum() != null){
-            this.personGenderEnum = person.getPersonGenderEnum();
+        if (person.getGender() != null){
+            this.gender = person.getGender();
         }
 
     }

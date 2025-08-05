@@ -16,8 +16,6 @@ public class ObjectMapperConfig {
                 .addFilter("PersonFilter",
                         SimpleBeanPropertyFilter.serializeAllExcept("sensitiveData", "lastName"));
         mapper.setFilterProvider(filters);
-
-
         return mapper;
     }
 }

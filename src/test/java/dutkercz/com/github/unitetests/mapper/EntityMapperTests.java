@@ -69,7 +69,7 @@ public class EntityMapperTests {
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
         assertEquals("Address Test0", output.getAddress());
-        assertEquals(MALE, output.getPersonGenderEnum());
+        assertEquals(MALE, output.getGender());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class EntityMapperTests {
         assertEquals("First Name Test0", outputZero.getFirstName());
         assertEquals("Last Name Test0", outputZero.getLastName());
         assertEquals("Address Test0", outputZero.getAddress());
-        assertEquals(MALE, outputZero.getPersonGenderEnum());
+        assertEquals(MALE, outputZero.getGender());
 
         Person outputSeven = outputList.get(7);
 
@@ -89,7 +89,7 @@ public class EntityMapperTests {
         assertEquals("First Name Test7", outputSeven.getFirstName());
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Address Test7", outputSeven.getAddress());
-        assertEquals(MALE, outputSeven.getPersonGenderEnum());
+        assertEquals(MALE, outputSeven.getGender());
 
         Person outputTwelve = outputList.get(12);
 
@@ -97,6 +97,6 @@ public class EntityMapperTests {
         assertEquals("First Name Test12", outputTwelve.getFirstName());
         assertEquals("Last Name Test12", outputTwelve.getLastName());
         assertEquals("Address Test12", outputTwelve.getAddress());
-        assertEquals(MALE, outputTwelve.getPersonGenderEnum());
+        assertEquals(MALE, outputTwelve.getGender());
     }
 }

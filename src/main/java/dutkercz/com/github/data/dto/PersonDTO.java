@@ -12,8 +12,8 @@ import java.util.Objects;
 import static jakarta.persistence.EnumType.STRING;
 
 //altera a ordem de visualização do JSON nas respostas (GET)
-@JsonPropertyOrder({"id", "first_name", "last_name", "address", "personGenderEnum"})
-@JsonFilter("PersonFilter")//adiciona o filtro personalizado do ObjectMapperConfig
+//@JsonPropertyOrder({"id", "first_name", "last_name", "address", "personGenderEnum"})
+//@JsonFilter("PersonFilter")//adiciona o filtro personalizado do ObjectMapperConfig
 public class PersonDTO implements Serializable {
 
     private final static long serialVersionUID = 1L;
@@ -21,19 +21,19 @@ public class PersonDTO implements Serializable {
 
     private Long id;
 
-    @JsonProperty("first_name")//altera o nome na visualização do JSON (GET)
+    //@JsonProperty("first_name")altera o nome na visualização do JSON (GET)
     private String firstName;
 
-    @JsonProperty("last_name")
+    //@JsonProperty("last_name")
     @JsonInclude(JsonInclude.Include.NON_NULL) // apenas renderiza quando não estiver NULO
     private String lastName;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY) //apenas renderiza quando não estiver VAZIO (EXMPLO "")
+    //@JsonInclude(JsonInclude.Include.NON_EMPTY) //apenas renderiza quando não estiver VAZIO (EXMPLO "")
     private String address;
 
     @Enumerated(STRING)
     // @JsonIgnore  Suprime a visualização do campo na resposta do JSON
-    @JsonSerialize(using = EnumGenderSerializer.class)
+    //@JsonSerialize(using = EnumGenderSerializer.class)
     private PersonGenderEnum gender;
 
 

@@ -1,5 +1,7 @@
 package dutkercz.com.github.services;
 
+import dutkercz.com.github.data.dto.PersonDTO;
+import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -7,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static dutkercz.com.github.mapper.EntityMapper.parseObject;
 
 @Service
 public class PersonService {
@@ -18,20 +22,21 @@ public class PersonService {
     }
 
     @Transactional
-    public Person create(Person person){
-        return personRepository.save(new Person(null, person.getFirstName(), person.getLastName(), person.getAddress(), person.getPersonGenderEnum()));
+    public PersonDTO create(PersonDTO personDTO){
+        Person person = personRepository.save(parseObject(personDTO, Person.class));
+        return parseObject(person, PersonDTO.class);
     }
 
-    public List<Person> findAll(){
-        return personRepository.findAll();
+    public List<PersonDTO> findAll(){
+        return EntityMapper.parseListObjects(personRepository.findAll(), PersonDTO.class);
     }
 
     @Transactional
-    public Person update(Person personToUpdate){
+    public PersonDTO update(PersonDTO personToUpdate){
         Person person = personRepository.findById(personToUpdate.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado"));
         person.update(personToUpdate);
-        return person;
+        return parseObject(person, PersonDTO.class);
     }
 
     @Transactional
@@ -39,8 +44,8 @@ public class PersonService {
         personRepository.deleteById(id);
     }
 
-    public Person findById(Long id) {
-        return personRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado"));
+    public PersonDTO findById(Long id) {
+        return parseObject(personRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado")), PersonDTO.class);
     }
 }
