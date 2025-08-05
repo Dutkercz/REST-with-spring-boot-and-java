@@ -27,8 +27,9 @@ public class PersonService {
     @Transactional
     public PersonDTO create(PersonDTO personDTO){
         Person person = personRepository.save(parseObject(personDTO, Person.class));
-        addHateoasLinks(personDTO);
-        return parseObject(person, PersonDTO.class);
+        var dto = parseObject(person, PersonDTO.class);
+        addHateoasLinks(dto);
+        return dto;
     }
 
     public List<PersonDTO> findAll(){
