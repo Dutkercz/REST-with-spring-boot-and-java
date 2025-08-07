@@ -40,7 +40,7 @@ public class PersonService {
     @Transactional
     public PersonDTO update(PersonDTO personToUpdate){
         Person person = personRepository.findById(personToUpdate.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         var dto = parseObject(person.update(personToUpdate), PersonDTO.class);
         addHateoasLinks(dto);
         return dto;
@@ -48,7 +48,9 @@ public class PersonService {
 
     @Transactional
     public void delete(Long id){
-        personRepository.deleteById(id);
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        personRepository.delete(person);
     }
 
     public PersonDTO findById(Long id) {

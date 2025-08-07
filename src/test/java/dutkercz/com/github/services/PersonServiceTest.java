@@ -16,11 +16,9 @@ import java.util.Optional;
 
 import static dutkercz.com.github.models.PersonGenderEnum.FEMALE;
 import static dutkercz.com.github.models.PersonGenderEnum.MALE;
-import static org.apache.commons.lang3.Validate.notNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +50,11 @@ class PersonServiceTest {
         assertEquals(1L, result.getId(), "O ID retornado deve ser 1.");
         assertNotNull(result.getLinks(), "Os links não podem ser nulos.");
 
+        assertEquals("First Name Test1", result.getFirstName());
+        assertEquals("Last Name Test1", result.getLastName());
+        assertEquals("Address Test1", result.getAddress());
+        assertEquals(FEMALE, result.getGender());
+
         boolean hasSelfLink = result.getLinks().stream()
                 .anyMatch(link ->
                     link.getRel().value().equals("self")
@@ -82,6 +85,8 @@ class PersonServiceTest {
                 && link.getHref().endsWith("/person/1")
                 && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
+
+
 
     }
 
@@ -164,9 +169,62 @@ class PersonServiceTest {
 
     @Test
     void update() {
+        Person person = input.mockEntity(1);
+        person.setId(1L);
+        PersonDTO dto = input.mockDTO(1);
+        dto.setId(1L);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(person));
+        var result = service.update(dto);
+
+        assertNotNull(result, "entidade não pode ser nula");
+        assertEquals(1L, result.getId());
+        assertEquals(person.getFirstName(), result.getFirstName());
+        assertEquals(person.getLastName(), result.getLastName());
+        assertEquals(person.getAddress(), result.getAddress());
+        assertEquals(person.getGender(), result.getGender());
+
+        assertNotNull(result.getLinks());
+        boolean hasSelfLink = result.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("self")
+                                && link.getHref().endsWith("/person/1")
+                                &&  link.getType().equals("GET"));
+        assertTrue(hasSelfLink, "deve contem o link self com GET e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("findAll")
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("GET"));
+        assertTrue(hasSelfLink, "deve contem o link 'findAll' com GET e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("create")
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("POST"));
+        assertTrue(hasSelfLink, "deve contem o link 'create' com POST e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("update")
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("PUT"));
+        assertTrue(hasSelfLink, "deve contem o link 'update' com PUT e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("delete")
+                        && link.getHref().endsWith("/person/1")
+                        && link.getType().equals("DELETE"));
+        assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
     }
 
     @Test
     void delete() {
+        Person person = input.mockEntity(1);
+        person.setId(1L);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(person));
+        service.delete(1L);
+        verify(repository, times(1)).findById(1L);
+        verify(repository, times(1)).delete(any(Person.class));
     }
 }
