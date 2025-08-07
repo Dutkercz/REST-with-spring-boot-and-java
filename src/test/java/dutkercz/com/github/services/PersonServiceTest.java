@@ -57,33 +57,33 @@ class PersonServiceTest {
 
         boolean hasSelfLink = result.getLinks().stream()
                 .anyMatch(link ->
-                    link.getRel().value().equals("self")
-                            && link.getHref().endsWith("/person/1")
-                            &&  link.getType().equals("GET"));
+                        link.getRel().value().equals("self")
+                                && link.getHref().endsWith("/person/1")
+                                &&  link.getType().equals("GET"));
         assertTrue(hasSelfLink, "deve contem o link self com GET e href correto");
 
         hasSelfLink = result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("findAll")
-                && link.getHref().endsWith("/person")
-                && link.getType().equals("GET"));
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("GET"));
         assertTrue(hasSelfLink, "deve contem o link 'findAll' com GET e href correto");
 
         hasSelfLink = result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("create")
-                && link.getHref().endsWith("/person")
-                && link.getType().equals("POST"));
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("POST"));
         assertTrue(hasSelfLink, "deve contem o link 'create' com POST e href correto");
 
         hasSelfLink = result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("update")
-                && link.getHref().endsWith("/person")
-                && link.getType().equals("PUT"));
+                        && link.getHref().endsWith("/person")
+                        && link.getType().equals("PUT"));
         assertTrue(hasSelfLink, "deve contem o link 'update' com PUT e href correto");
 
         hasSelfLink = result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("delete")
-                && link.getHref().endsWith("/person/1")
-                && link.getType().equals("DELETE"));
+                        && link.getHref().endsWith("/person/1")
+                        && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
 
 
@@ -142,28 +142,71 @@ class PersonServiceTest {
     }
 
     @Test
-    void findAll() {
-        List<Person> personList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            Person person = input.mockEntity(i);
-            person.setId((long) i);
-            person.setGender(((i % 2)==0) ? MALE : FEMALE);
-            personList.add(person);
-        }
+    void createWithNullPerson(){
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> service.create(null));
 
+        String expectedMessage = "Verifique os campos, e tente novamente";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+        assertEquals(expectedMessage, actualMessage);
+
+    }
+
+    @Test
+    void findAll() {
+        List<Person> personList = input.mockEntityList();
+
+        //quando "alguem" chamar o metodo do repository, retorne esse "objeto"
         when(repository.findAll()).thenReturn(personList);
 
+        // aqui o "alguem" chamou o metodo do repository, então eu devolvo aquele objeto mockado
         var result = service.findAll();
 
         assertNotNull(result, "a list não deve ser nula");
-        assertEquals(3, result.size());
+        assertEquals(personList.size(), result.size());
 
-        for (int i = 0; i < 3; i++) {
-            var resultDTO = result.get(i);
-            assertEquals("First Name Test"+i, resultDTO.getFirstName());
-            assertEquals("Last Name Test"+i, resultDTO.getLastName());
-            assertEquals("Address Test"+i, resultDTO.getAddress());
-            assertEquals(personList.get(i).getGender(), resultDTO.getGender());
+        for (int i = 0; i < result.size(); i++) {
+            var pass = i;
+            var resultDTO = result.get(pass);
+            assertEquals("First Name Test"+pass, resultDTO.getFirstName());
+            assertEquals("Last Name Test"+pass, resultDTO.getLastName());
+            assertEquals("Address Test"+pass, resultDTO.getAddress());
+            assertEquals(personList.get(pass).getGender(), resultDTO.getGender());
+
+
+            assertNotNull(resultDTO.getLinks());
+            boolean hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link ->
+                            link.getRel().value().equals("self")
+                                    && link.getHref().endsWith("/person/"+pass)
+                                    &&  link.getType().equals("GET"));
+            assertTrue(hasSelfLink, "deve contem o link self com GET e href correto");
+
+            hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link -> link.getRel().value().equals("findAll")
+                            && link.getHref().endsWith("/person")
+                            && link.getType().equals("GET"));
+            assertTrue(hasSelfLink, "deve contem o link 'findAll' com GET e href correto");
+
+            hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link -> link.getRel().value().equals("create")
+                            && link.getHref().endsWith("/person")
+                            && link.getType().equals("POST"));
+            assertTrue(hasSelfLink, "deve contem o link 'create' com POST e href correto");
+
+            hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link -> link.getRel().value().equals("update")
+                            && link.getHref().endsWith("/person")
+                            && link.getType().equals("PUT"));
+            assertTrue(hasSelfLink, "deve contem o link 'update' com PUT e href correto");
+
+            hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link -> link.getRel().value().equals("delete")
+                            && link.getHref().endsWith("/person/"+pass)
+                            && link.getType().equals("DELETE"));
+            assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
+
+            verify(repository, times(1)).findAll();
         }
     }
 
@@ -215,6 +258,16 @@ class PersonServiceTest {
                         && link.getHref().endsWith("/person/1")
                         && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
+    }
+
+    @Test
+    void updateWithNullPerson(){
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> service.update(null));
+
+        String expectedMessage = "Verifique os campos, e tente novamente";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+        assertEquals(expectedMessage, actualMessage);
     }
 
     @Test

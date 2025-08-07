@@ -5,6 +5,7 @@ import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class PersonService {
 
     @Transactional
     public PersonDTO create(PersonDTO personDTO){
+        if (personDTO == null) throw new IllegalArgumentException("Verifique os campos, e tente novamente");
         Person person = personRepository.save(parseObject(personDTO, Person.class));
         var dto = parseObject(person, PersonDTO.class);
         addHateoasLinks(dto);
@@ -39,6 +41,8 @@ public class PersonService {
 
     @Transactional
     public PersonDTO update(PersonDTO personToUpdate){
+        if (personToUpdate == null) throw new IllegalArgumentException("Verifique os campos, e tente novamente");
+
         Person person = personRepository.findById(personToUpdate.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         var dto = parseObject(person.update(personToUpdate), PersonDTO.class);
