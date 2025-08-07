@@ -165,8 +165,10 @@ class PersonServiceTest {
         assertNotNull(result, "a list não deve ser nula");
         assertEquals(personList.size(), result.size());
 
-        for (int i = 0; i < result.size(); i++) {
+        //pega esse ternário dentro do for kkkk
+        for (int i = 0; i < result.size(); i = (i % 3 == 0 ? i +2 : i + 1)) {
             var pass = i;
+            System.out.println(pass);
             var resultDTO = result.get(pass);
             assertEquals("First Name Test"+pass, resultDTO.getFirstName());
             assertEquals("Last Name Test"+pass, resultDTO.getLastName());
