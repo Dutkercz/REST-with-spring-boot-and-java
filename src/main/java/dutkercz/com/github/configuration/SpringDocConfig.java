@@ -1,13 +1,18 @@
 package dutkercz.com.github.configuration;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
 
 @Configuration
 public class SpringDocConfig {
+
+    /// Link onde podemos encontrar a espeficicação completa de uso do SpringDoc
+    // https://lankydan.dev/documenting-a-spring-rest-api-following-the-openapi-specification
 
     @Bean
     OpenAPI openAPI(){

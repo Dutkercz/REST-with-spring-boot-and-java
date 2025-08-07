@@ -15,4 +15,7 @@ logging:
   level:
     #root: WARN
     dutkercz.com.github : DEBUG
+spring-doc:
+  paths-to-match: /api/**
+  use-root-path: true
 
