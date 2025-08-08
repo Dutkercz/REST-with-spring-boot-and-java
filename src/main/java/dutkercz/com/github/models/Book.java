@@ -3,7 +3,7 @@ package dutkercz.com.github.models;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -16,13 +16,13 @@ public class Book {
     private String author;
     private String title;
     @Column(name = "launch_date")
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
     private BigDecimal price;
 
     public Book() {
     }
 
-    public Book(Long id, String author, String title, LocalDateTime releaseDate, BigDecimal price) {
+    public Book(Long id, String author, String title, LocalDate releaseDate, BigDecimal price) {
         this.id = id;
         this.author = author;
         this.title = title;
@@ -54,11 +54,11 @@ public class Book {
         this.title = title;
     }
 
-    public LocalDateTime getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDateTime releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 

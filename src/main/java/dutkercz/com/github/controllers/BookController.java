@@ -36,25 +36,29 @@ public class BookController implements BookControllerDocs {
 
     @Override
     @PutMapping
-    public ResponseEntity<BookResponseDTO> updateBook(@RequestBody BookUpdateDTO bookUpdateDTO) {
-        return null;
+    public ResponseEntity<BookResponseDTO> updateBook(@RequestBody @Valid BookUpdateDTO updateDTO) {
+        BookResponseDTO responseDTO = bookService.update(updateDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<BookResponseDTO> findById(@PathVariable Long id) {
-        return null;
+        BookResponseDTO responseDTO = bookService.findById(id);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Override
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Page<BookResponseDTO>> findAll(Pageable pageable) {
-        return null;
+        Page<BookResponseDTO> responseDTOS = bookService.findAll(pageable);
+        return ResponseEntity.ok(responseDTOS);
     }
 
     @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBookById(Long id) {
-        return null;
+        bookService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

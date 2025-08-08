@@ -64,8 +64,8 @@ public interface BookControllerDocs {
 
 
 
-    @Operation(summary = "Find a Book by ID",
-            description = "Find a entity by, and then return a custom DTO",
+    @Operation(summary = "Find all Books",
+            description = "Find all entities , and then return a custom List<DTO>",
             tags = {"Books"},
             responses = {
                     @ApiResponse(description = "Success", responseCode = "200",

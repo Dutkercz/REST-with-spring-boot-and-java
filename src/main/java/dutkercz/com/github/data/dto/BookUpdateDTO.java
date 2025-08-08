@@ -4,5 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record BookUpdateDTO(@NotNull BigDecimal price) {
+public record BookUpdateDTO(
+        @NotNull Long id,
+        @NotNull BigDecimal price) {
 }

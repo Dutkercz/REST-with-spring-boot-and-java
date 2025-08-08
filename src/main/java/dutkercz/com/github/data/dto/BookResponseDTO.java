@@ -1,9 +1,9 @@
 package dutkercz.com.github.data.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.hateoas.RepresentationModel;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class BookResponseDTO extends RepresentationModel<BookResponseDTO> {
@@ -11,18 +11,19 @@ public class BookResponseDTO extends RepresentationModel<BookResponseDTO> {
     private Long id;
     private String author;
     private String title;
-    private String releaseDate;
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate releaseDate;
     private String price;
 
     public BookResponseDTO() {
     }
 
-    public BookResponseDTO(Long id, String author, String title, LocalDateTime releaseDate, String price) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public BookResponseDTO(Long id, String author, String title, LocalDate releaseDate, String price) {
+
         this.id = id;
         this.author = author;
         this.title = title;
-        this.releaseDate = releaseDate.format(dtf);
+        this.releaseDate = releaseDate;
         this.price = price;
     }
 
@@ -50,11 +51,11 @@ public class BookResponseDTO extends RepresentationModel<BookResponseDTO> {
         this.title = title;
     }
 
-    public String getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(String releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
