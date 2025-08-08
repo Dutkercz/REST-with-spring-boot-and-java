@@ -78,9 +78,7 @@ public interface PersonControllerDocs {
             description = "Realiza updates nos parametros de Person",
             tags = {"Person"},
             responses = {
-                    @ApiResponse(
-                            description = "Success",
-                            responseCode = "200",
+                    @ApiResponse(description = "Success", responseCode = "200",
                             content = @Content(schema = @Schema(implementation = PersonDTO.class))),
                     @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
                     @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),

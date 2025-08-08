@@ -37,7 +37,6 @@ public class PersonDTO extends RepresentationModel<PersonDTO> implements Seriali
     //@JsonSerialize(using = EnumGenderSerializer.class)
     private PersonGenderEnum gender;
 
-
     private String sensitiveData;
 
     public PersonDTO() {

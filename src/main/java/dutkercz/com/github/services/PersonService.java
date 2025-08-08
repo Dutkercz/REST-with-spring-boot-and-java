@@ -5,7 +5,6 @@ import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
