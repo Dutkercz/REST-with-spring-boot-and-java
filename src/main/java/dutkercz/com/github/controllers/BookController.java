@@ -6,6 +6,7 @@ import dutkercz.com.github.data.dto.BookResponseDTO;
 import dutkercz.com.github.data.dto.BookUpdateDTO;
 import dutkercz.com.github.services.BookService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class BookController implements BookControllerDocs {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<BookResponseDTO>> findAll(Pageable pageable) {
+    public ResponseEntity<Page<BookResponseDTO>> findAll(@ParameterObject Pageable pageable) {
         Page<BookResponseDTO> responseDTOS = bookService.findAll(pageable);
         return ResponseEntity.ok(responseDTOS);
     }
