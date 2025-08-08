@@ -3,6 +3,7 @@ package dutkercz.com.github.data.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.hateoas.RepresentationModel;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -13,12 +14,12 @@ public class BookResponseDTO extends RepresentationModel<BookResponseDTO> {
     private String title;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate releaseDate;
-    private String price;
+    private BigDecimal price;
 
     public BookResponseDTO() {
     }
 
-    public BookResponseDTO(Long id, String author, String title, LocalDate releaseDate, String price) {
+    public BookResponseDTO(Long id, String author, String title, LocalDate releaseDate, BigDecimal price) {
 
         this.id = id;
         this.author = author;
@@ -59,11 +60,11 @@ public class BookResponseDTO extends RepresentationModel<BookResponseDTO> {
         this.releaseDate = releaseDate;
     }
 
-    public String getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
