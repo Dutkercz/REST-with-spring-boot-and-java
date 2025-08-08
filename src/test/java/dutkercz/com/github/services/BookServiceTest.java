@@ -1,6 +1,7 @@
 package dutkercz.com.github.services;
 
 import dutkercz.com.github.data.dto.BookRequestDTO;
+import dutkercz.com.github.data.dto.BookResponseDTO;
 import dutkercz.com.github.models.Book;
 import dutkercz.com.github.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +36,9 @@ class BookServiceTest {
 
     @Test
     void create() {
-        Book book = inputBook.mockBook(14);
-        BookRequestDTO requestDTO = inputBook.mockRequest(14);
+        Book book = inputBook.mockBook(1);
+        BookRequestDTO requestDTO = inputBook.mockRequest(1);
+        BookResponseDTO responseDTO = inputBook.mockResponse(1);
         book.setId(1L);
         when(bookRepository.save(any(Book.class))).thenReturn(book);
 
@@ -48,6 +50,34 @@ class BookServiceTest {
         assertEquals(book.getTitle(), result.getTitle());
         assertEquals(book.getReleaseDate(), result.getReleaseDate());
         assertEquals(0, book.getPrice().compareTo(result.getPrice()));
+
+        assertNotNull(responseDTO.getLinks());
+
+        boolean hasValidsLinks = assertTrue(responseDTO.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("self")
+                                && link.getHref().endsWith("/books/1")
+                                &&  link.getType().equals("GET")));
+        assertTrue(responseDTO.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("findALl")
+                                && link.getHref().endsWith("/books")
+                                &&  link.getType().equals("GET")));
+        assertTrue(responseDTO.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("create")
+                                && link.getHref().endsWith("/books")
+                                &&  link.getType().equals("POST")));
+        assertTrue(responseDTO.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("update")
+                                && link.getHref().endsWith("/books")
+                                &&  link.getType().equals("PUT")));
+        assertTrue(responseDTO.getLinks().stream()
+                .anyMatch(link ->
+                        link.getRel().value().equals("delete")
+                                && link.getHref().endsWith("/books/1")
+                                &&  link.getType().equals("DELETE")));
         verify(bookRepository, times(1)).save(any(Book.class));
     }
 
@@ -92,6 +122,15 @@ class BookServiceTest {
 
         public BookRequestDTO mockRequest(Integer number) {
             BookRequestDTO book = new BookRequestDTO();
+            book.setAuthor("Autor"+number);
+            book.setTitle("Titulo"+number);
+            book.setReleaseDate(LocalDate.of(2000, 1, number));
+            book.setPrice(BigDecimal.valueOf(number));
+            return book;
+        }
+
+        public BookResponseDTO mockResponse(Integer number) {
+            BookResponseDTO book = new BookResponseDTO();
             book.setAuthor("Autor"+number);
             book.setTitle("Titulo"+number);
             book.setReleaseDate(LocalDate.of(2000, 1, number));
