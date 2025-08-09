@@ -2,6 +2,7 @@ package dutkercz.com.github.services;
 
 import dutkercz.com.github.data.dto.BookRequestDTO;
 import dutkercz.com.github.data.dto.BookResponseDTO;
+import dutkercz.com.github.data.dto.BookUpdateDTO;
 import dutkercz.com.github.models.Book;
 import dutkercz.com.github.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,11 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.hateoas.Links;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,55 +41,70 @@ class BookServiceTest {
     void create() {
         Book book = inputBook.mockBook(1);
         BookRequestDTO requestDTO = inputBook.mockRequest(1);
-        BookResponseDTO responseDTO = inputBook.mockResponse(1);
         book.setId(1L);
         when(bookRepository.save(any(Book.class))).thenReturn(book);
 
         var result = bookService.create(requestDTO);
 
         assertNotNull(result, "E entidade não pode estar nula");
-        assertEquals(1L, result.getId());
-        assertEquals(book.getAuthor(), result.getAuthor());
-        assertEquals(book.getTitle(), result.getTitle());
-        assertEquals(book.getReleaseDate(), result.getReleaseDate());
-        assertEquals(0, book.getPrice().compareTo(result.getPrice()));
+        assertEquals(1L, result.getId(), "O ID deve ser o mesmo");
+        assertEquals(book.getAuthor(), result.getAuthor(), "O Autor deve ser o mesmo");
+        assertEquals(book.getTitle(), result.getTitle(), "O Titulo deve ser o mesmo");
+        assertEquals(book.getReleaseDate(), result.getReleaseDate(), "A data deve ser a mesma");
+        assertEquals(0, book.getPrice().compareTo(result.getPrice()), "O preços devem ser iguais");
 
-        assertNotNull(responseDTO.getLinks());
 
-        boolean hasValidsLinks = assertTrue(responseDTO.getLinks().stream()
-                .anyMatch(link ->
-                        link.getRel().value().equals("self")
-                                && link.getHref().endsWith("/books/1")
-                                &&  link.getType().equals("GET")));
-        assertTrue(responseDTO.getLinks().stream()
-                .anyMatch(link ->
-                        link.getRel().value().equals("findALl")
-                                && link.getHref().endsWith("/books")
-                                &&  link.getType().equals("GET")));
-        assertTrue(responseDTO.getLinks().stream()
-                .anyMatch(link ->
-                        link.getRel().value().equals("create")
-                                && link.getHref().endsWith("/books")
-                                &&  link.getType().equals("POST")));
-        assertTrue(responseDTO.getLinks().stream()
-                .anyMatch(link ->
-                        link.getRel().value().equals("update")
-                                && link.getHref().endsWith("/books")
-                                &&  link.getType().equals("PUT")));
-        assertTrue(responseDTO.getLinks().stream()
-                .anyMatch(link ->
-                        link.getRel().value().equals("delete")
-                                && link.getHref().endsWith("/books/1")
-                                &&  link.getType().equals("DELETE")));
+        assertValidLinks(result.getId(), result.getLinks());
+
+
         verify(bookRepository, times(1)).save(any(Book.class));
     }
 
     @Test
     void update() {
+        Book book = inputBook.mockBook(1);
+        book.setId(1L);
+        book.setPrice(BigDecimal.valueOf(49.99));
+        BookUpdateDTO updateDTO = inputBook.mockUpdate(1, BigDecimal.valueOf(99.90));
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        System.out.println("ID" + updateDTO.id());
+        var result = bookService.update(updateDTO);
+
+        assertNotNull(result, "E entidade não pode estar nula");
+
+        assertEquals(1L, result.getId(), "O ID deve permanecer o mesmo");
+        assertEquals(0, updateDTO.price().compareTo(result.getPrice()),
+                "O preço deve ser atualizado para o valor do DTO");
+        assertEquals(book.getAuthor(), result.getAuthor(), "O autor não deve ser alterado");
+        assertEquals(book.getTitle(), result.getTitle(), "O título não deve ser alterado");
+        assertEquals(book.getReleaseDate(), result.getReleaseDate(), "A data de lançamento não deve ser alterada");
+
+        assertValidLinks(result.getId(), result.getLinks());
+
+        verify(bookRepository, times(1)).findById(book.getId());
     }
 
     @Test
     void findById() {
+        Book book = inputBook.mockBook(1);
+        book.setId(1L);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+        var result = bookService.findById(1L);
+
+        assertNotNull(result, "E entidade não pode estar nula");
+        assertEquals(1L, result.getId(), "O ID deve ser o mesmo");
+        assertEquals(book.getAuthor(), result.getAuthor(), "O Autor deve ser o mesmo");
+        assertEquals(book.getTitle(), result.getTitle(), "O Titulo deve ser o mesmo");
+        assertEquals(book.getReleaseDate(), result.getReleaseDate(), "A data deve ser a mesma");
+        assertEquals(0, book.getPrice().compareTo(result.getPrice()), "O preços devem ser iguais");
+
+        assertValidLinks(result.getId(), result.getLinks());
+
+        verify(bookRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -137,5 +155,39 @@ class BookServiceTest {
             book.setPrice(BigDecimal.valueOf(number));
             return book;
         }
+
+        public BookUpdateDTO mockUpdate(Integer number, BigDecimal price){
+            return new BookUpdateDTO(Long.valueOf(number), price);
+        }
+    }
+
+    private static void assertValidLinks(Long id, Links links) {
+        assertNotNull(links);
+        String path = "/api/books";
+
+        assertTrue(links.stream()
+                .anyMatch(link -> link.getRel().value().equals("self")
+                        && link.getHref().endsWith(path + "/" + id)
+                        && link.getType().equals("GET")));
+
+        assertTrue(links.stream()
+                .anyMatch(link -> link.getRel().value().equals("findAll")
+                        && link.getHref().endsWith(path)
+                        && link.getType().equals("GET")));
+
+        assertTrue(links.stream()
+                .anyMatch(link -> link.getRel().value().equals("create")
+                        && link.getHref().endsWith(path)
+                        && link.getType().equals("POST")));
+
+        assertTrue(links.stream()
+                .anyMatch(link -> link.getRel().value().equals("update")
+                        && link.getHref().endsWith(path)
+                        && link.getType().equals("PUT")));
+
+        assertTrue(links.stream()
+                .anyMatch(link -> link.getRel().value().equals("delete")
+                        && link.getHref().endsWith(path + "/" + id)
+                        && link.getType().equals("DELETE")));
     }
 }
