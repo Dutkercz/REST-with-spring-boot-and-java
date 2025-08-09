@@ -62,7 +62,7 @@ public class BookService {
     public void deleteById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book não encontrado"));
-        bookRepository.deleteById(book.getId());
+        bookRepository.delete(book);
     }
 
     private static void addHateoasLinks(BookResponseDTO dto){
