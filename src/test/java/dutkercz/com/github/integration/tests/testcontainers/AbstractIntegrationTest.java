@@ -1,4 +1,4 @@
-package dutkercz.com.github.integration.tests;
+package dutkercz.com.github.integration.tests.testcontainers;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -14,15 +14,15 @@ import java.util.stream.Stream;
 
 /*
 Isso diz para o Spring Test carregar o contexto de aplicação usando
- um initializer customizado — no caso, AbstracIntegrationTest.Initializer.
+ um initializer customizado — no caso, AbstractIntegrationTest.Initializer.
 
 O initializer é chamado antes do Spring criar o contexto, permitindo configurar
 variáveis de ambiente, propriedades, ou até iniciar serviços externos
  */
-@ContextConfiguration(initializers = AbstracIntegrationTest.Initializer.class)
-public class AbstracIntegrationTest {
+@ContextConfiguration(initializers = AbstractIntegrationTest.Initializer.class)
+public class AbstractIntegrationTest {
 
-    /***   AbstracIntegrationTest
+    /***   AbstractIntegrationTest
      * classe base para testes de integração.
      * Todas as classes de teste que estendem essa vão herdar essa
      * não precisa repetir a inicialização de containers de banco.
