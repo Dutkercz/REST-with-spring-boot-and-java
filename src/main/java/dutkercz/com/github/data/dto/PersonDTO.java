@@ -1,10 +1,8 @@
 package dutkercz.com.github.data.dto;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import dutkercz.com.github.models.PersonGenderEnum;
-import dutkercz.com.github.serializer.EnumGenderSerializer;
-import jakarta.persistence.*;
+import jakarta.persistence.Enumerated;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;

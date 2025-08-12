@@ -4,7 +4,6 @@ import dutkercz.com.github.data.dto.BookRequestDTO;
 import dutkercz.com.github.data.dto.BookResponseDTO;
 import dutkercz.com.github.data.dto.BookUpdateDTO;
 import dutkercz.com.github.models.Book;
-import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
