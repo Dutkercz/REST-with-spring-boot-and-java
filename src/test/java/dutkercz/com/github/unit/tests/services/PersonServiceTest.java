@@ -1,9 +1,10 @@
-package dutkercz.com.github.services;
+package dutkercz.com.github.unit.tests.services;
 
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
-import dutkercz.com.github.unitetests.mapper.mock.MockPerson;
+import dutkercz.com.github.services.PersonService;
+import dutkercz.com.github.unit.tests.mock.MockPerson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

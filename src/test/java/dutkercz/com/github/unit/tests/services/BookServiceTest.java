@@ -1,10 +1,13 @@
-package dutkercz.com.github.services;
+package dutkercz.com.github.unit.tests.services;
+
 
 import dutkercz.com.github.data.dto.BookRequestDTO;
 import dutkercz.com.github.data.dto.BookResponseDTO;
 import dutkercz.com.github.data.dto.BookUpdateDTO;
 import dutkercz.com.github.models.Book;
 import dutkercz.com.github.repositories.BookRepository;
+import dutkercz.com.github.services.BookService;
+import dutkercz.com.github.unit.tests.mock.MockBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -17,8 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Links;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,6 @@ class BookServiceTest {
         assertBookEquals(book, result);
         assertValidLinks(result.getId(), result.getLinks());
 
-
         verify(bookRepository, times(1)).save(any(Book.class));
     }
 
@@ -67,18 +67,15 @@ class BookServiceTest {
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
 
-        System.out.println("ID" + updateDTO.id());
         var result = bookService.update(updateDTO);
 
         assertNotNull(result, "E entidade não pode estar nula");
-
         assertEquals(1L, result.getId(), "O ID deve permanecer o mesmo");
         assertEquals(0, updateDTO.price().compareTo(result.getPrice()),
                 "O preço deve ser atualizado para o valor do DTO");
         assertEquals(book.getAuthor(), result.getAuthor(), "O autor não deve ser alterado");
         assertEquals(book.getTitle(), result.getTitle(), "O título não deve ser alterado");
         assertEquals(book.getReleaseDate(), result.getReleaseDate(), "A data de lançamento não deve ser alterada");
-
         assertValidLinks(result.getId(), result.getLinks());
 
         verify(bookRepository, times(1)).findById(book.getId());
@@ -90,6 +87,7 @@ class BookServiceTest {
         book.setId(1L);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
         var result = bookService.findById(1L);
 
         assertNotNull(result, "E entidade não pode estar nula");
@@ -104,6 +102,7 @@ class BookServiceTest {
         Page<Book> bookPaged = new PageImpl<>(books, pageable, books.size());
 
         when(bookRepository.findAll(pageable)).thenReturn(bookPaged);
+
         var results = bookService.findAll(pageable);
 
         assertNotNull(results, "O resultado da lista não pode estar nulo");
@@ -115,7 +114,6 @@ class BookServiceTest {
             assertBookEquals(expected, result);
         }
         verify(bookRepository, times(1)).findAll(pageable);
-
     }
 
     @Test
@@ -124,60 +122,13 @@ class BookServiceTest {
         book.setId(1L);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
         bookService.deleteById(1L);
+
         verify(bookRepository, times(1)).findById(1L);
         verify(bookRepository, times(1)).delete(any(Book.class));
-
     }
 
-    private static class MockBook {
-
-        public Book mockEntity(){
-            return mockBook(0);
-        }
-
-
-        public Book mockBook(Integer number) {
-            Book book = new Book();
-            book.setAuthor("Autor"+number);
-            book.setTitle("Titulo"+number);
-            book.setReleaseDate(LocalDate.of(2000, 1, 1));
-            book.setPrice(BigDecimal.valueOf(number));
-            return book;
-        }
-        public List<Book> mockBookList(){
-            List<Book> bookList = new ArrayList<>();
-            long id = 1L;
-            for (int i = 0; i < 30; i++) {
-                bookList.add(mockBook(i));
-                bookList.get(i).setId(id);
-                id ++;
-            }
-            return bookList;
-        }
-
-        public BookRequestDTO mockRequest(Integer number) {
-            BookRequestDTO book = new BookRequestDTO();
-            book.setAuthor("Autor"+number);
-            book.setTitle("Titulo"+number);
-            book.setReleaseDate(LocalDate.of(2000, 1, number));
-            book.setPrice(BigDecimal.valueOf(number));
-            return book;
-        }
-
-        public BookResponseDTO mockResponse(Integer number) {
-            BookResponseDTO book = new BookResponseDTO();
-            book.setAuthor("Autor"+number);
-            book.setTitle("Titulo"+number);
-            book.setReleaseDate(LocalDate.of(2000, 1, number));
-            book.setPrice(BigDecimal.valueOf(number));
-            return book;
-        }
-
-        public BookUpdateDTO mockUpdate(Integer number, BigDecimal price){
-            return new BookUpdateDTO(Long.valueOf(number), price);
-        }
-    }
 
     private static void assertValidLinks(Long id, Links links) {
         assertNotNull(links);

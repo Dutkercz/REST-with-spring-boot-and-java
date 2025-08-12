@@ -1,4 +1,4 @@
-package dutkercz.com.github.unitetests.mapper.mock;
+package dutkercz.com.github.unit.tests.mock;
 
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.models.Person;

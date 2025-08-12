@@ -1,9 +1,9 @@
-package dutkercz.com.github.unitetests.mapper;
+package dutkercz.com.github.unit.tests.mapper;
 
 
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.models.Person;
-import dutkercz.com.github.unitetests.mapper.mock.MockPerson;
+import dutkercz.com.github.unit.tests.mock.MockPerson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ public class EntityMapperTests {
 
     @Test
     public void parseEntityToDTOTest() {
-        dutkercz.com.github.data.dto.PersonDTO output = parseObject(inputObject.mockEntity(), PersonDTO.class);
+        PersonDTO output = parseObject(inputObject.mockEntity(), PersonDTO.class);
         assertEquals(Long.valueOf(0L), output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
@@ -89,7 +89,7 @@ public class EntityMapperTests {
         assertEquals("First Name Test7", outputSeven.getFirstName());
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Address Test7", outputSeven.getAddress());
-        assertEquals(MALE, outputSeven.getGender());
+        assertEquals(FEMALE, outputSeven.getGender());
 
         Person outputTwelve = outputList.get(12);
 

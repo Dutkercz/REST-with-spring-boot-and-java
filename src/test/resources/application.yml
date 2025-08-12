@@ -1,1 +1,23 @@
-spring.application.name=REST-with-spring-boot-and-java
+server:
+  port: 8888 #subir a aplicação em tests nessa porta, ao inves da 8080
+spring:
+  application:
+    name: REST-with-spring-boot-and-java
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE}?useTimezone=true&serverTimezone=UTC
+#    username: ${MY_SQL_USERNAME}
+#    password: ${MY_SQL_PASSWORD} não é usado, pois é criado dinamicamente
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+logging:
+  level:
+    #root: WARN
+    dutkercz.com.github : DEBUG
+spring-doc:
+  paths-to-match: /api/**
+  use-root-path: true
+
