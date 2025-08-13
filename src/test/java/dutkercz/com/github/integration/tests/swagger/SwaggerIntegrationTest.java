@@ -1,7 +1,9 @@
 package dutkercz.com.github.integration.tests.swagger;
 
 import dutkercz.com.github.integration.tests.testcontainers.AbstractIntegrationTest;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static dutkercz.com.github.integration.tests.config.TestConfigs.SERVER_PORT;

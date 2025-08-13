@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
+// @CrossOrigin(origins = "htpp://localhost:8080")
 @RestController
 @RequestMapping("/api/books")
 public class BookController implements BookControllerDocs {

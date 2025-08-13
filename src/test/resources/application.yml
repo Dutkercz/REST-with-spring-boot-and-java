@@ -1,5 +1,7 @@
 server:
   port: 8888 #subir a aplicação em tests nessa porta, ao inves da 8080
+cors:
+  originPatterns: http://localhost:8080,http://localhost:3000
 spring:
   application:
     name: REST-with-spring-boot-and-java
