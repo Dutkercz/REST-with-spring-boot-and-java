@@ -1,6 +1,7 @@
 package dutkercz.com.github.integration.tests.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dutkercz.com.github.integration.tests.config.TestConfigs;
@@ -14,6 +15,10 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static dutkercz.com.github.models.PersonGenderEnum.MALE;
 import static io.restassured.RestAssured.given;
@@ -45,7 +50,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         mockPerson();
 
         requestSpecification = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTORIZED)
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
                 .setBasePath("/api/person")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
@@ -66,20 +71,12 @@ class PersonControllerTest extends AbstractIntegrationTest {
         //pegando o JSON da resposta (content) e
         // convertendo ele de volta para um objeto Java do tipo PersonDTO
         // usando o objectMapper do Jackson para a deserealização
-        personDTO = objectMapper.readValue(content, PersonDTO.class);
+        var result = objectMapper.readValue(content, PersonDTO.class);
 
-        assertNotNull(personDTO.getId(), "O id não deve ser nulo");
-        assertNotNull(personDTO.getFirstName(), "O Nome não deve ser nulo");
-        assertNotNull(personDTO.getLastName(), "O Sobrenome não deve ser nulo");
-        assertNotNull(personDTO.getAddress(), "O Endereço não deve ser nulo");
-        assertNotNull(personDTO.getGender(), "O Genero não deve ser nulo");
+        assertResults(personDTO, result);
 
-        assertTrue(personDTO.getId() > 0L, "O id deve ser maior que 0");
-
-        assertEquals("Cristiaum", personDTO.getFirstName());
-        assertEquals("Rosa", personDTO.getLastName());
-        assertEquals("Dom Pedrito - RS - BR", personDTO.getAddress());
-        assertEquals(MALE, personDTO.getGender());
+        //para ser usado nos próximos testes
+        personDTO.setId(result.getId());
     }
 
     @Test
@@ -111,7 +108,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
     @Order(3)
     void findById() throws JsonProcessingException {
         requestSpecification = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTORIZED)
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
                 .setBasePath("/api/person/")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
@@ -127,20 +124,9 @@ class PersonControllerTest extends AbstractIntegrationTest {
                 .statusCode(200)
                 .extract().asString();
 
-        personDTO = objectMapper.readValue(content, PersonDTO.class);
+        var result = objectMapper.readValue(content, PersonDTO.class);
 
-        assertNotNull(personDTO.getId(), "O id não deve ser nulo");
-        assertNotNull(personDTO.getFirstName(), "O Nome não deve ser nulo");
-        assertNotNull(personDTO.getLastName(), "O Sobrenome não deve ser nulo");
-        assertNotNull(personDTO.getAddress(), "O Endereço não deve ser nulo");
-        assertNotNull(personDTO.getGender(), "O Genero não deve ser nulo");
-
-        assertTrue(personDTO.getId() > 0L, "O id deve ser maior que 0");
-
-        assertEquals("Cristiaum", personDTO.getFirstName());
-        assertEquals("Rosa", personDTO.getLastName());
-        assertEquals("Dom Pedrito - RS - BR", personDTO.getAddress());
-        assertEquals(MALE, personDTO.getGender());
+        assertResults(personDTO, result);
     }
 
     @Test
@@ -175,7 +161,75 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void findAll() {
+    @Order(5)
+    void findAll() throws JsonProcessingException {
+        requestSpecification = new RequestSpecBuilder()
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
+                .setBasePath("/api/person")
+                .setPort(TestConfigs.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
+
+        //Aqui criamos uma iteração para criar novos objetos na DB, e guarda o resultado em uma lista
+        List<PersonDTO> expectedList = new ArrayList<>();
+        expectedList.add(personDTO);
+        for (int i = 1; i <= 3; i++) {
+            PersonDTO dto = new PersonDTO(null,
+                    "Name" + i,
+                    "LastName" + i,
+                    "Adress"+i,
+                    MALE );
+
+            var content = given(requestSpecification)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(dto)
+                    .when()
+                    .post()
+                    .then()
+                    .statusCode(201)
+                    .extract()
+                    .body()
+                    .asString();
+
+            PersonDTO created = objectMapper.readValue(content, PersonDTO.class);
+            expectedList.add(created);
+        }
+
+        var content = given(requestSpecification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get()
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().asString();
+
+        List<PersonDTO> result = objectMapper.readValue(content, new TypeReference<List<PersonDTO>>() {});
+        result = result.stream().sorted(Comparator.comparing(PersonDTO::getId)).toList();
+
+        assertNotNull(result);
+        assertTrue(result.getFirst().getId() > 0);
+        assertEquals(expectedList.size(), result.size());
+        assertFalse(result.isEmpty());
+
+        for (int i = 0; i < result.size(); i++) {
+
+            assertResults(expectedList.get(i), result.get(i));
+        }
+    }
+
+    private void assertResults(PersonDTO expected, PersonDTO result) {
+        assertNotNull(result.getId(), "O id não deve ser nulo");
+        assertNotNull(result.getFirstName(), "O Nome não deve ser nulo");
+        assertNotNull(result.getLastName(), "O Sobrenome não deve ser nulo");
+        assertNotNull(result.getAddress(), "O Endereço não deve ser nulo");
+        assertNotNull(result.getGender(), "O Genero não deve ser nulo");
+
+        assertEquals(expected.getFirstName(), result.getFirstName());
+        assertEquals(expected.getLastName(), result.getLastName());
+        assertEquals(expected.getAddress(), result.getAddress());
+        assertEquals(expected.getGender(), result.getGender());
     }
 
     private void mockPerson() {
