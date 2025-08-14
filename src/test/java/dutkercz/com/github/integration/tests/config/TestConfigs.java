@@ -5,6 +5,6 @@ public interface TestConfigs {
 
     String HEADER_PARAM_AUTHORIZATION = "Authorization";
     String HEADER_PARAM_ORIGIN = "Origin";
-    String ORIGIN_T1_ORIGIN = "http://localhost:8888";
-    String ORIGIN_T2_ORIGIN = "http://localhost:2121";
+    String ORIGIN_AUTORIZED = "http://localhost:8888";
+    String ORIGIN_UNAUTHORIZED = "http://localhost:2121";
 }

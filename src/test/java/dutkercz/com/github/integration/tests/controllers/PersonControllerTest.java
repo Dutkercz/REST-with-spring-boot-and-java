@@ -3,13 +3,9 @@ package dutkercz.com.github.integration.tests.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.log.Log;
 import dutkercz.com.github.integration.tests.config.TestConfigs;
 import dutkercz.com.github.integration.tests.dto.PersonDTO;
 import dutkercz.com.github.integration.tests.testcontainers.AbstractIntegrationTest;
-import dutkercz.com.github.models.PersonGenderEnum;
-import dutkercz.com.github.repositories.PersonRepository;
-import dutkercz.com.github.services.PersonService;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -32,8 +28,8 @@ class PersonControllerTest extends AbstractIntegrationTest {
     private static ObjectMapper objectMapper;
     private static PersonDTO personDTO;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         objectMapper = new ObjectMapper();
 
         //ignorar o erro quando encontrar atributos desconhecidos. caso não sete esse
@@ -49,7 +45,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         mockPerson();
 
         requestSpecification = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_T1_ORIGIN)
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTORIZED)
                 .setBasePath("/api/person")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
@@ -66,6 +62,10 @@ class PersonControllerTest extends AbstractIntegrationTest {
                 .extract()
                 .body()
                 .asString();
+
+        //pegando o JSON da resposta (content) e
+        // convertendo ele de volta para um objeto Java do tipo PersonDTO
+        // usando o objectMapper do Jackson para a deserealização
         personDTO = objectMapper.readValue(content, PersonDTO.class);
 
         assertNotNull(personDTO.getId(), "O id não deve ser nulo");
@@ -83,7 +83,87 @@ class PersonControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void findById() {
+    @Order(2)
+    void createWithWrongOrigin() throws JsonProcessingException {
+        requestSpecification = new RequestSpecBuilder()
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_UNAUTHORIZED)
+                .setBasePath("/api/person")
+                .setPort(TestConfigs.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
+
+        var content = given(requestSpecification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(personDTO)
+                .when()
+                .post()
+                .then()
+                .statusCode(403)
+                .extract()
+                .body()
+                .asString();
+
+        assertEquals("Invalid CORS request", content);
+    }
+
+    @Test
+    @Order(3)
+    void findById() throws JsonProcessingException {
+        requestSpecification = new RequestSpecBuilder()
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTORIZED)
+                .setBasePath("/api/person/")
+                .setPort(TestConfigs.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
+
+        var content = given(requestSpecification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("id", personDTO.getId()) //verficar a string do param no controller, tem que ser a mesma
+                .when()
+                .get("{id}")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        personDTO = objectMapper.readValue(content, PersonDTO.class);
+
+        assertNotNull(personDTO.getId(), "O id não deve ser nulo");
+        assertNotNull(personDTO.getFirstName(), "O Nome não deve ser nulo");
+        assertNotNull(personDTO.getLastName(), "O Sobrenome não deve ser nulo");
+        assertNotNull(personDTO.getAddress(), "O Endereço não deve ser nulo");
+        assertNotNull(personDTO.getGender(), "O Genero não deve ser nulo");
+
+        assertTrue(personDTO.getId() > 0L, "O id deve ser maior que 0");
+
+        assertEquals("Cristiaum", personDTO.getFirstName());
+        assertEquals("Rosa", personDTO.getLastName());
+        assertEquals("Dom Pedrito - RS - BR", personDTO.getAddress());
+        assertEquals(MALE, personDTO.getGender());
+    }
+
+    @Test
+    @Order(4)
+    void findByIdWithWrongOrigin() throws JsonProcessingException {
+        requestSpecification = new RequestSpecBuilder()
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_UNAUTHORIZED)
+                .setBasePath("/api/person/")
+                .setPort(TestConfigs.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
+
+        var content = given(requestSpecification)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("id", personDTO.getId()) //verficar a string do param no controller, tem que ser a mesma
+                .when()
+                .get("{id}")
+                .then()
+                .statusCode(403)
+                .extract().asString();
+
+        assertEquals("Invalid CORS request", content);
     }
 
     @Test
@@ -104,4 +184,6 @@ class PersonControllerTest extends AbstractIntegrationTest {
         personDTO.setAddress("Dom Pedrito - RS - BR");
         personDTO.setGender(MALE);
     }
+
+
 }
