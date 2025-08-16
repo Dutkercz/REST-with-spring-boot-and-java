@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class) //defini que os metodos sejam executados na ordem em que estão
-class PersonControllerTest extends AbstractIntegrationTest {
+class PersonControllerCorsTest extends AbstractIntegrationTest {
 
 
     private static RequestSpecification requestSpecification;
@@ -172,6 +172,10 @@ class PersonControllerTest extends AbstractIntegrationTest {
                 .build();
 
         //Aqui criamos uma iteração para criar novos objetos na DB, e guarda o resultado em uma lista
+        //ATENÇÃO, POR ESTARMOS USANDO UM MESMO CONTAINER PARA TODOS OS TESTES,
+        // AQUI A NOSSA LISTA TAMBEM TERA O TESTE REALIZADOS
+        // EM PersonControllerJsonTest.class
+        //se rodarmos todos os testes juntos, poderemos ter essa alteração no tamnho da lista
         List<PersonDTO> expectedList = new ArrayList<>();
         expectedList.add(personDTO);
         for (int i = 1; i <= 3; i++) {

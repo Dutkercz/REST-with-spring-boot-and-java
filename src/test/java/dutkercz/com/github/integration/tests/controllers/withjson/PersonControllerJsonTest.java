@@ -41,7 +41,6 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
         //ignorar o erro quando encontrar atributos desconhecidos. caso não sete esse
         //disable, iremos ter erros em relação ao links HATEOAS
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
         personDTO = new PersonDTO();
     }
 
@@ -120,7 +119,6 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
 
         var content = given(requestSpecification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("id", personDTO.getId())
                 .body(updateDTO)
                 .when()
                     .put()
@@ -133,6 +131,7 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
         var result = objectMapper.readValue(content, PersonDTO.class);
 
         assertResults(updateDTO, result);
+        personDTO = result;
     }
 
     @Test
@@ -152,6 +151,10 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
                 .build();
 
         //Aqui criamos uma iteração para criar novos objetos na DB, e guarda o resultado em uma lista
+        //ATENÇÃO, POR ESTARMOS USANDO UM MESMO CONTAINER PARA TODOS OS TESTES,
+        // AQUI A NOSSA LISTA TAMBEM TERA O TESTE REALIZADOS
+        // EM PersonControllerCorsTest.class
+        //se rodarmos todos os testes juntos, poderemos ter essa alteração no tamnho da lista
         List<PersonDTO> expectedList = new ArrayList<>();
         expectedList.add(personDTO);
         for (int i = 1; i <= 3; i++) {

@@ -218,7 +218,7 @@ class PersonServiceTest {
 
             hasSelfLink = resultDTO.getLinks().stream()
                     .anyMatch(link -> link.getRel().value().equals("disable")
-                            && link.getHref().endsWith("/person/1")
+                            && link.getHref().endsWith("/person/"+pass)
                             && link.getType().equals("PATCH"));
             assertTrue(hasSelfLink, "deve contem o link 'disable' com PATCH e href correto");
 
