@@ -85,8 +85,11 @@ class PersonServiceTest {
                         && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
 
-
-
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("disable")
+                        && link.getHref().endsWith("/person/1")
+                        && link.getType().equals("PATCH"));
+        assertTrue(hasSelfLink, "deve contem o link 'disable' com PATCH e href correto");
     }
 
     @Test
@@ -137,6 +140,12 @@ class PersonServiceTest {
                         && link.getHref().endsWith("/person/1")
                         && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("disable")
+                        && link.getHref().endsWith("/person/1")
+                        && link.getType().equals("PATCH"));
+        assertTrue(hasSelfLink, "deve contem o link 'disable' com PATCH e href correto");
 
     }
 
@@ -207,6 +216,12 @@ class PersonServiceTest {
                             && link.getType().equals("DELETE"));
             assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
 
+            hasSelfLink = resultDTO.getLinks().stream()
+                    .anyMatch(link -> link.getRel().value().equals("disable")
+                            && link.getHref().endsWith("/person/1")
+                            && link.getType().equals("PATCH"));
+            assertTrue(hasSelfLink, "deve contem o link 'disable' com PATCH e href correto");
+
             verify(repository, times(1)).findAll();
         }
     }
@@ -259,6 +274,12 @@ class PersonServiceTest {
                         && link.getHref().endsWith("/person/1")
                         && link.getType().equals("DELETE"));
         assertTrue(hasSelfLink, "deve contem o link 'delete' com DELETE e href correto");
+
+        hasSelfLink = result.getLinks().stream()
+                .anyMatch(link -> link.getRel().value().equals("disable")
+                        && link.getHref().endsWith("/person/1")
+                        && link.getType().equals("PATCH"));
+        assertTrue(hasSelfLink, "deve contem o link 'disable' com PATCH e href correto");
     }
 
     @Test

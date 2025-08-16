@@ -5,8 +5,12 @@ import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final Logger logger = LoggerFactory.getLogger(PersonService.class.getName());
 
     public PersonService(PersonRepository personRepository) {
         this.personRepository = personRepository;
@@ -34,12 +39,15 @@ public class PersonService {
     }
 
     public List<PersonDTO> findAll(){
+        logger.info("Finding all People!");
         return EntityMapper.parseListObjects(personRepository.findAll(), PersonDTO.class)
                 .stream().peek(PersonService::addHateoasLinks).toList();
     }
 
     @Transactional
     public PersonDTO update(PersonDTO personToUpdate){
+        logger.info("UPDATE Person!");
+
         if (personToUpdate == null) throw new IllegalArgumentException("Verifique os campos, e tente novamente");
 
         Person person = personRepository.findById(personToUpdate.getId())
@@ -51,12 +59,28 @@ public class PersonService {
 
     @Transactional
     public void delete(Long id){
+        logger.info("DELETE Person!");
+
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         personRepository.delete(person);
     }
 
+    @Transactional
+    public PersonDTO disablePerson(Long id){
+        logger.info("DISABLE Person!");
+
+        personRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        personRepository.disablePerson(id);
+
+        var person = personRepository.findById(id).get();
+        return parseObject(person, PersonDTO.class);
+    }
+
     public PersonDTO findById(Long id) {
+        logger.info("FIND Person by ID!");
+
         var dto =  parseObject(personRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado")), PersonDTO.class);
             addHateoasLinks(dto);
@@ -66,6 +90,7 @@ public class PersonService {
     private static void addHateoasLinks(PersonDTO dto) {
         dto.add(linkTo(methodOn(PersonController.class).findById(dto.getId())).withSelfRel().withType("GET"));
         dto.add(linkTo(methodOn(PersonController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
+        dto.add(linkTo(methodOn(PersonController.class).disablePerson(dto.getId())).withRel("disable").withType("PATCH"));
         dto.add(linkTo(methodOn(PersonController.class).findAll()).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(PersonController.class).create(dto, null)).withRel("create").withType("POST"));
         dto.add(linkTo(methodOn(PersonController.class).update(dto)).withRel("update").withType("PUT"));

@@ -73,4 +73,12 @@ public class PersonController implements PersonControllerDocs {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping(path = "/{id}", produces = {APPLICATION_JSON_VALUE,
+            APPLICATION_XML_VALUE,
+            APPLICATION_YAML_VALUE})
+    @Override
+    public ResponseEntity<?> disablePerson(@PathVariable Long id){
+        return ResponseEntity.ok(personService.disablePerson(id));
+    }
+
 }

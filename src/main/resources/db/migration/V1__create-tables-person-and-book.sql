@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS tb_person(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    gender VARCHAR(15) NOT NULL,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tb_books(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    author VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    release_date DATE NOT NULL,
+    price DECIMAL(7,2) NOT NULL,
+
+    PRIMARY KEY (id)
+);

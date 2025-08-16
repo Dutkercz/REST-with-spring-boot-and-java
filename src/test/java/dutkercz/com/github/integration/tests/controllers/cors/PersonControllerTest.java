@@ -1,4 +1,4 @@
-package dutkercz.com.github.integration.tests.controllers;
+package dutkercz.com.github.integration.tests.controllers.cors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -179,7 +179,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
                     "Name" + i,
                     "LastName" + i,
                     "Adress"+i,
-                    MALE );
+                    MALE);
 
             var content = given(requestSpecification)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -230,6 +230,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         assertEquals(expected.getLastName(), result.getLastName());
         assertEquals(expected.getAddress(), result.getAddress());
         assertEquals(expected.getGender(), result.getGender());
+        assertTrue(result.getEnabled());
     }
 
     private void mockPerson() {
@@ -237,6 +238,7 @@ class PersonControllerTest extends AbstractIntegrationTest {
         personDTO.setLastName("Rosa");
         personDTO.setAddress("Dom Pedrito - RS - BR");
         personDTO.setGender(MALE);
+        personDTO.setEnabled(true);
     }
 
 

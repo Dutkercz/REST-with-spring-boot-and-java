@@ -9,6 +9,7 @@ import java.util.Objects;
 import static jakarta.persistence.EnumType.STRING;
 
 @Entity
+@Table(name = "tb_person")
 public class Person implements Serializable {
 
     private final static long serialVersionUID = 1L;
@@ -29,15 +30,19 @@ public class Person implements Serializable {
     @Enumerated(STRING)@Column(nullable = false, length = 10)
     private PersonGenderEnum gender;
 
+    @Column(nullable = false)
+    private Boolean enabled;
+
     public Person() {
     }
 
-    public Person(Long id, String firstName, String lastName, String address, PersonGenderEnum gender) {
+    public Person(Long id, String firstName, String lastName, String address, PersonGenderEnum gender, Boolean enabled) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.gender = gender;
+        this.enabled = enabled;
     }
 
     public Long getId() {
@@ -78,6 +83,14 @@ public class Person implements Serializable {
 
     public void setGender(PersonGenderEnum gender) {
         this.gender = gender;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

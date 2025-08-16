@@ -103,4 +103,18 @@ public interface PersonControllerDocs {
             }
     )
     ResponseEntity<?> delete(@PathVariable Long id);
+
+    @Operation(
+            summary = "Disable Person",
+            description = "Desabilita uma instancia de Person pelo seu ID",
+            tags = {"Person"},
+            responses = {
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
+            }
+    )
+    ResponseEntity<?> disablePerson(@PathVariable Long id);
 }
