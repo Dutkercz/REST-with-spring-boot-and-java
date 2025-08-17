@@ -7,12 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dutkercz.com.github.integration.tests.config.TestConfigs;
 import dutkercz.com.github.integration.tests.dto.PersonDTO;
 import dutkercz.com.github.integration.tests.testcontainers.AbstractIntegrationTest;
+import dutkercz.com.github.repositories.PersonRepository;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
@@ -32,6 +34,8 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
     private static RequestSpecification requestSpecification;
     private static ObjectMapper objectMapper;
     private static PersonDTO personDTO;
+    @Autowired
+    private PersonRepository personRepository;
 
     @BeforeAll
     static void setUp() {
@@ -163,6 +167,8 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
     @Test
     @Order(5)
     void findAll() throws JsonProcessingException {
+        personRepository.deleteAll();
+        assertEquals(0, personRepository.findAll().size());
         requestSpecification = new RequestSpecBuilder()
                 .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
                 .setBasePath("/api/person")
@@ -177,7 +183,6 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
         // EM PersonControllerJsonTest.class
         //se rodarmos todos os testes juntos, poderemos ter essa alteração no tamnho da lista
         List<PersonDTO> expectedList = new ArrayList<>();
-        expectedList.add(personDTO);
         for (int i = 1; i <= 3; i++) {
             PersonDTO dto = new PersonDTO(null,
                     "Name" + i,

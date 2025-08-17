@@ -7,12 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dutkercz.com.github.integration.tests.config.TestConfigs;
 import dutkercz.com.github.integration.tests.dto.PersonDTO;
 import dutkercz.com.github.integration.tests.testcontainers.AbstractIntegrationTest;
+import dutkercz.com.github.repositories.PersonRepository;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
@@ -20,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static dutkercz.com.github.models.PersonGenderEnum.FEMALE;
 import static dutkercz.com.github.models.PersonGenderEnum.MALE;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +34,8 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
     private static RequestSpecification requestSpecification;
     private static ObjectMapper objectMapper;
     private static PersonDTO personDTO;
+    @Autowired
+    private PersonRepository personRepository;
 
     @BeforeAll
     static void setUp() {
@@ -58,15 +61,16 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
                 .build();
 
         var content = given(requestSpecification)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(personDTO)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(personDTO)
                 .when()
-                .post()
+                    .post()
                 .then()
-                .statusCode(201)
+                    .statusCode(201)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .extract()
-                .body()
-                .asString();
+                    .body()
+                        .asString();
 
         //pegando o JSON da resposta (content) e
         // convertendo ele de volta para um objeto Java do tipo PersonDTO
@@ -82,25 +86,19 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
     @Test
     @Order(2)
     void findById() throws JsonProcessingException {
-        requestSpecification = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
-                .setBasePath("/api/person/")
-                .setPort(TestConfigs.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
-
         var content = given(requestSpecification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("id", personDTO.getId()) //verficar a string do param no controller, tem que ser a mesma
                 .when()
-                .get("{id}")
+                    .get("{id}")
                 .then()
-                .statusCode(200)
-                .extract().asString();
+                    .statusCode(200)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .extract()
+                    .body()
+                        .asString();
 
         var result = objectMapper.readValue(content, PersonDTO.class);
-
         assertResults(personDTO, result);
     }
 
@@ -109,14 +107,6 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
     void update() throws JsonProcessingException {
         PersonDTO updateDTO = new PersonDTO(personDTO.getId(), "NewName", "NewLastName", "NewAdrres", MALE);
 
-        requestSpecification = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
-                .setBasePath("/api/person")
-                .setPort(TestConfigs.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
-
         var content = given(requestSpecification)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(updateDTO)
@@ -124,6 +114,7 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
                     .put()
                 .then()
                     .statusCode(200)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .extract()
                     .body()
                         .asString();
@@ -136,12 +127,22 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
 
     @Test
     @Order(4)
-    void delete() {
+    void delete() throws JsonProcessingException {
+        given(requestSpecification)
+                .when()
+                    .pathParam("id", personDTO.getId())
+                .when()
+                    .delete("{id}")
+                .then()
+                    .statusCode(204);
     }
 
     @Test
     @Order(5)
     void findAll() throws JsonProcessingException {
+        personRepository.deleteAll();
+        assertEquals(0, personRepository.findAll().size());
+
         requestSpecification = new RequestSpecBuilder()
                 .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_AUTHORIZED)
                 .setBasePath("/api/person")
@@ -156,7 +157,6 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
         // EM PersonControllerCorsTest.class
         //se rodarmos todos os testes juntos, poderemos ter essa alteração no tamnho da lista
         List<PersonDTO> expectedList = new ArrayList<>();
-        expectedList.add(personDTO);
         for (int i = 1; i <= 3; i++) {
             PersonDTO dto = new PersonDTO(null,
                     "Name" + i,
@@ -186,7 +186,8 @@ class PersonControllerJsonTest extends AbstractIntegrationTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .body().asString();
+                    .body()
+                        .asString();
 
         List<PersonDTO> result = objectMapper.readValue(content, new TypeReference<List<PersonDTO>>() {});
         result = result.stream().sorted(Comparator.comparing(PersonDTO::getId)).toList();

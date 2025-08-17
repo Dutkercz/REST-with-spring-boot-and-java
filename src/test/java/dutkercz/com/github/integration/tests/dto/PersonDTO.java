@@ -2,12 +2,14 @@ package dutkercz.com.github.integration.tests.dto;
 
 import dutkercz.com.github.models.PersonGenderEnum;
 import jakarta.persistence.Enumerated;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 import static jakarta.persistence.EnumType.STRING;
 
+@XmlRootElement
 public class PersonDTO implements Serializable {
 
     private final static long serialVersionUID = 1L;
