@@ -4,6 +4,9 @@ import dutkercz.com.github.controllers.docs.PersonControllerDocs;
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.services.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -50,8 +53,10 @@ public class PersonController implements PersonControllerDocs {
                     APPLICATION_XML_VALUE,
                     APPLICATION_YAML_VALUE})
     @Override
-    public ResponseEntity<List<PersonDTO>> findAll(){
-        return ResponseEntity.ok(personService.findAll());
+    public ResponseEntity<Page<PersonDTO>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                            @RequestParam(value = "size", defaultValue = "12") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(personService.findAll(pageable));
     }
 
     @PutMapping(consumes = {APPLICATION_JSON_VALUE,
