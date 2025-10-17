@@ -6,9 +6,11 @@ import dutkercz.com.github.data.dto.BookResponseDTO;
 import dutkercz.com.github.data.dto.BookUpdateDTO;
 import dutkercz.com.github.services.BookService;
 import jakarta.validation.Valid;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -52,9 +54,17 @@ public class BookController implements BookControllerDocs {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<BookResponseDTO>> findAll(@ParameterObject Pageable pageable) {
-        Page<BookResponseDTO> responseDTOS = bookService.findAll(pageable);
-        return ResponseEntity.ok(responseDTOS);
+    public ResponseEntity<PagedModel<EntityModel<BookResponseDTO>>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                            @RequestParam(value = "size", defaultValue = "12") Integer size,
+                                                                            @RequestParam(value = "direction", defaultValue = "asc") String direction) {
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ?
+                Sort.Direction.DESC
+                :
+                Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "author"));
+
+        return ResponseEntity.ok(bookService.findAll(pageable));
     }
 
     @Override

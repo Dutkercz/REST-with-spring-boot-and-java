@@ -8,8 +8,14 @@ import dutkercz.com.github.models.Book;
 import dutkercz.com.github.repositories.BookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 
 import static dutkercz.com.github.mapper.EntityMapper.parseObject;
@@ -20,6 +26,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class BookService {
 
     private final BookRepository bookRepository;
+
+    @Autowired
+    private PagedResourcesAssembler<BookResponseDTO> assembler;
 
     public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
@@ -51,11 +60,21 @@ public class BookService {
         return dto;
     }
 
-    public Page<BookResponseDTO> findAll(Pageable pageable) {
+    public PagedModel<EntityModel<BookResponseDTO>> findAll(Pageable pageable) {
+
         Page<BookResponseDTO> responseDTOS = bookRepository.findAll(pageable)
-                .map(x -> parseObject(x, BookResponseDTO.class));
-        responseDTOS.forEach(BookService::addHateoasLinks);
-        return responseDTOS;
+                .map(x -> {
+                    var bookDto = parseObject(x, BookResponseDTO.class);
+                    addHateoasLinks(bookDto);
+                    return bookDto;
+                });
+
+        Link findAllLinks = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(BookController.class)
+                        .findAll(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().toString()))
+                .withSelfRel();
+
+        return assembler.toModel(responseDTOS, findAllLinks);
     }
 
     @Transactional
@@ -70,6 +89,6 @@ public class BookService {
         dto.add(linkTo(methodOn(BookController.class).updateBook(new BookUpdateDTO(dto.getId(),null))).withRel("update").withType("PUT"));
         dto.add(linkTo(methodOn(BookController.class).deleteBookById(dto.getId())).withRel("delete").withType("DELETE"));
         dto.add(linkTo(methodOn(BookController.class).findById(dto.getId())).withSelfRel().withType("GET"));
-        dto.add(linkTo(methodOn(BookController.class).findAll(null)).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(BookController.class).findAll(1, 12, "desc")).withRel("findAll").withType("GET"));
     }
 }
