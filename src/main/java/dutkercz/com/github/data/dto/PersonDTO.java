@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import dutkercz.com.github.models.PersonGenderEnum;
 import jakarta.persistence.Enumerated;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import static jakarta.persistence.EnumType.STRING;
 //altera a ordem de visualização do JSON nas respostas (GET)
 //@JsonPropertyOrder({"id", "first_name", "last_name", "address", "personGenderEnum"})
 //@JsonFilter("PersonFilter")//adiciona o filtro personalizado do ObjectMapperConfig
+@Relation(collectionRelation = "people")
 public class PersonDTO extends RepresentationModel<PersonDTO> implements Serializable {
 
     private final static long serialVersionUID = 1L;

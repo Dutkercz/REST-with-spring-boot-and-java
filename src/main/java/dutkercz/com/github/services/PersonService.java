@@ -2,20 +2,20 @@ package dutkercz.com.github.services;
 
 import dutkercz.com.github.controllers.PersonController;
 import dutkercz.com.github.data.dto.PersonDTO;
-import dutkercz.com.github.mapper.EntityMapper;
 import dutkercz.com.github.models.Person;
 import dutkercz.com.github.repositories.PersonRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static dutkercz.com.github.mapper.EntityMapper.parseObject;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -26,6 +26,9 @@ public class PersonService {
 
     private final PersonRepository personRepository;
     private final Logger logger = LoggerFactory.getLogger(PersonService.class.getName());
+
+    @Autowired
+    private PagedResourcesAssembler<PersonDTO> assembler;
 
     public PersonService(PersonRepository personRepository) {
         this.personRepository = personRepository;
@@ -40,16 +43,23 @@ public class PersonService {
         return dto;
     }
 
-    public Page<PersonDTO> findAll(Pageable pageable) {
+    public PagedModel<EntityModel<PersonDTO>> findAll(Pageable pageable) {
         logger.info("Finding all People!");
 
         var people = personRepository.findAll(pageable);
 
-        return people.map(x -> {
+        var peopleWithLinks =  people.map(x -> {
             var dto = parseObject(x, PersonDTO.class);
             addHateoasLinks(dto);
             return dto;
         });
+
+        Link findAllLinks = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(PersonController.class)
+                        .findAll(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().toString()))
+                .withSelfRel();
+
+        return assembler.toModel(peopleWithLinks, findAllLinks);
     }
 
     @Transactional
