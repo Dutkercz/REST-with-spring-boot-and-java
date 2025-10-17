@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -103,6 +104,28 @@ public class PersonService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encotrado")), PersonDTO.class);
             addHateoasLinks(dto);
         return dto;
+    }
+
+    public PagedModel<EntityModel<PersonDTO>> findAllByFirstName(String firstName, Pageable pageable){
+        var peopleWithThisFirstName = personRepository.findAllByFirstNameContaining(firstName, pageable);
+        var peopleWithLinks = peopleWithThisFirstName.map(x ->{
+            var dto = parseObject(x, PersonDTO.class);
+            addHateoasLinks(dto);
+            return dto;
+        });
+
+        Link link = WebMvcLinkBuilder
+                .linkTo(
+                        WebMvcLinkBuilder.methodOn(PersonController.class)
+                                .findAllByFirstName(
+                                        firstName,
+                                        pageable.getPageNumber(),
+                                        pageable.getPageSize(),
+                                        pageable.getSort().toString()))
+                .withSelfRel();
+
+        return assembler.toModel(peopleWithLinks, link);
+
     }
 
     private static void addHateoasLinks(PersonDTO dto) {

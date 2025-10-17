@@ -4,6 +4,7 @@ import dutkercz.com.github.controllers.docs.PersonControllerDocs;
 import dutkercz.com.github.data.dto.PersonDTO;
 import dutkercz.com.github.services.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.websocket.server.PathParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,4 +93,19 @@ public class PersonController implements PersonControllerDocs {
         return ResponseEntity.ok(personService.disablePerson(id));
     }
 
+    @GetMapping("/firstName/{be}")
+    public ResponseEntity<PagedModel<EntityModel<PersonDTO>>> findAllByFirstName(@PathVariable("be") String firstName,
+                                       @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                       @RequestParam(value = "size", defaultValue = "12") Integer size,
+                                       @RequestParam(value = "sort", defaultValue = "asc") String direction) {
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ?
+                Sort.Direction.DESC
+                :
+                Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "firstName"));
+
+        return ResponseEntity.ok().body(personService.findAllByFirstName(firstName, pageable));
+    }
 }
